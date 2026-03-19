@@ -62,7 +62,7 @@ document.body.appendChild(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 300);
 
 // ─── Lights ───────────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 const sun = new THREE.DirectionalLight(0xffeedd, 1.2);
 sun.position.set(30, 50, 20);
 sun.castShadow = true;
@@ -91,7 +91,11 @@ const carGroup = new THREE.Group();
 scene.add(carGroup);
 
 // Body — main lower section (extended 15% backwards to cover rear wheels)
-const carBodyMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+const carBodyMat = new THREE.MeshStandardMaterial({
+  color: 0x87ceeb,     // baby blue (SkyBlue)
+  roughness: 0.8,      // increase from default 0.5 for more diffuse shading
+  metalness: 0         // non-metallic
+});
 const carBody = new THREE.Mesh(
   new THREE.BoxGeometry(1.5, 0.48, 3.22),  // 2.8 * 1.15
   carBodyMat
@@ -348,7 +352,8 @@ window.addEventListener('keydown', e => {
   if (e.key === '`') { debugVisible = !debugVisible; document.getElementById('debug').classList.toggle('visible', debugVisible); }
   if (e.key === 'c' || e.key === 'C') {
     cameraMode = cameraMode === 'chase' ? 'cockpit' : 'chase';
-    cabin.visible = cameraMode === 'chase';  // hide cabin in cockpit mode
+    cabin.visible = cameraMode === 'chase';  // hide cabin in cockpit mode, show in chase
+    carBody.visible = true;  // body always visible
   }
 });
 window.addEventListener('keyup', e => { if (e.key !== '`') keys[e.key.toLowerCase()] = false; });
@@ -740,10 +745,10 @@ function animate(now) {
     camera.lookAt(x, y, z);
   } else {
     // Cockpit camera (first-person from driver seat)
-    // Driver sits ~0.5m forward of CG, ~0.2m right of center, ~0.6m above ground
-    const driverForward = 0.5;
+    // Driver sits ~0.3m forward of CG, ~0.2m right of center, ~0.85m above ground
+    const driverForward = 0.3;
     const driverLateral = 0.2;
-    const driverHeight = 0.6;
+    const driverHeight = 0.85;
 
     // Rotate driver offset by car yaw to get world position
     const cosT = Math.cos(theta), sinT = Math.sin(theta);
